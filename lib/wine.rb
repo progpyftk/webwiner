@@ -1,0 +1,1 @@
+# this class defines a wine object
