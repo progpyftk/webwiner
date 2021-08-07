@@ -17,7 +17,7 @@ require 'nokogiri'
 class WineWebsite
 
     FIRST_PAGE = "https://www.wine.com.br/vinhos/cVINHOS-p1.html"
-    URL_PAGE_PIECE = "https://www.wine.com.br/vinhos/cVINHOS-p"
+    URL_PAGE_PIECE = "https://www.wine.com.br/vinhos/cVINHOS-p" # used to concatenate the full url in order to iterate over the product pages 
     MAIN_PAGE = "https://www.wine.com.br"
     PAGE_LINK_XPATH = '//*[@class="row ProductDisplay-name"]//a//@href' # xpath to find the product's links pages
     WINE_DATA_FEATURE_NAME = '//dt[@class="w-caption"]'  # xpath to find the wine features name at its main page
@@ -25,9 +25,8 @@ class WineWebsite
     WINE_NAME_XPATH = '//h1[@class="PageHeader-title w-title--4  text-center "]' # xpath to find the wine's name at its main page
 
     def products_link
-        puts "Entre no metodo products_link"
         products_link = []
-        page_number = 97
+        page_number = 1
         products = 1
         until products == 0
             res = Faraday.get(URL_PAGE_PIECE + page_number.to_s + ".html") # request to the next page
@@ -73,8 +72,8 @@ end
 wine_scrap = WineWebsite.new()
 products_link = wine_scrap.products_link
 wine_data_list = products_link.map { |link| wine_scrap.get_product_data(link) }
+puts"------------------------------------------------"
 wine_data_list.each do |each|
-    puts"----------------------------------------------"
     puts "Name: -------------#{each[:name]}"
     puts "Grape: ------------#{each[:grape]}"
     puts "Region: -----------#{each[:region]}"
