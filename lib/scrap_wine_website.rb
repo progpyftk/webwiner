@@ -4,10 +4,10 @@
 #
 # ||||Objectives||||
 #
-# 1 - get all products list with its info.
+# 1 - get all products list with their info.
 #         Wine info: name, maker, year, region, club price, regular price, sale price
 # 
-# 2 - separate the wine kits into individual wines in order to check its cost / benefit
+# 2 - break the wine bundles into individual wines in order to check their cost / benefit
 #
 # -------------------------------www.wine.com.br--------------------------------------------#
 
@@ -15,6 +15,10 @@ require 'faraday'
 require 'nokogiri'
 
 class WineWebsite
+
+    
+    # a classe Wine ainda será criada, por isso os atributos de um vinho não estão aqui nessa classe
+    # essa classe Wine que será criada, servirá para todos os sites de vendas, pois de todos queremos as mesma informações.
 
     FIRST_PAGE = "https://www.wine.com.br/vinhos/cVINHOS-p1.html"
     URL_PAGE_PIECE = "https://www.wine.com.br/vinhos/cVINHOS-p" # used to concatenate the full url in order to iterate over the product pages 
@@ -28,7 +32,7 @@ class WineWebsite
         products_link = []
         page_number = 1
         products = 1
-        until products == 0
+        until products == 0 # || page_number == 10 # delete this comment in order to test it faster
             res = Faraday.get(URL_PAGE_PIECE + page_number.to_s + ".html") # request to the next page
             doc = Nokogiri::HTML res.body # parse the page html
             products = doc.xpath(PAGE_LINK_XPATH).length # check the number of products in the page - wheh it reachs 0 means it is done
@@ -46,14 +50,18 @@ class WineWebsite
         index = 0
         # getting the grape, maker, year and regiom
         while index < doc.xpath(WINE_DATA_FEATURE_NAME).length
-            wine_data[:grape] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Uva"
-            wine_data[:maker] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Vinícola"
-            wine_data[:year] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Safra"
-            wine_data[:region] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "País - Região"
-            index += 1
+            unless doc.xpath(WINE_DATA_FEATURE_VALUE)[index] == nil
+                wine_data[:grape] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Uva"
+                wine_data[:maker] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Vinícola"
+                wine_data[:year] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Safra"
+                wine_data[:region] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "País - Região"
+                index += 1
+            end
         end
         # getting the name
-        wine_data[:name] = doc.xpath(WINE_NAME_XPATH).first.text if doc.xpath(WINE_NAME_XPATH)
+        puts doc.xpath(WINE_NAME_XPATH)
+        puts doc.xpath(WINE_NAME_XPATH).first
+        wine_data[:name] = doc.xpath(WINE_NAME_XPATH).first.text if doc.xpath(WINE_NAME_XPATH).first != nil
         # getting club price, sale price and regular price
         if doc.xpath('//price-box')[0]
             wine_data[:club_price] = doc.xpath('//price-box').attr(':product').text.scan(/\d+\.\d+/)[0].to_f
