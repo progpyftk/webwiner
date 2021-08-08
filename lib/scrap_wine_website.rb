@@ -11,6 +11,16 @@
 #
 # -------------------------------www.wine.com.br--------------------------------------------#
 
+# TODO
+#    1. Fix timeout problem - use begin / rescue approach
+#          When the request takes more than 60 seconds, it raises an error.
+#          C:/Ruby27/lib/ruby/2.7.0/net/protocol.rb:217:in `rbuf_fill': Net::ReadTimeout with #<TCPSocket:(closdTimeout)
+#   
+#    2. Check how many were success scraped by page, then, before scraping all the products again, 
+#            retry scraping ones with problem
+#
+
+
 require 'faraday'
 require 'nokogiri'
 
@@ -30,7 +40,7 @@ class WineWebsite
 
     def products_link
         products_link = []
-        page_number = 1
+        page_number = 1 # change this value in order to test faster
         products = 1
         until products == 0 # || page_number == 10 # delete this comment in order to test it faster
             res = Faraday.get(URL_PAGE_PIECE + page_number.to_s + ".html") # request to the next page
@@ -59,8 +69,6 @@ class WineWebsite
             end
         end
         # getting the name
-        puts doc.xpath(WINE_NAME_XPATH)
-        puts doc.xpath(WINE_NAME_XPATH).first
         wine_data[:name] = doc.xpath(WINE_NAME_XPATH).first.text if doc.xpath(WINE_NAME_XPATH).first != nil
         # getting club price, sale price and regular price
         if doc.xpath('//price-box')[0]
@@ -79,6 +87,8 @@ end
 
 wine_scrap = WineWebsite.new()
 products_link = wine_scrap.products_link
+puts products_link.length
+puts products_link
 wine_data_list = products_link.map { |link| wine_scrap.get_product_data(link) }
 puts"------------------------------------------------"
 wine_data_list.each do |each|
