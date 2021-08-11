@@ -1,5 +1,9 @@
 require 'pg'
 
+# Next steps
+# each method will begin and close a db connection, instead of all they have same connection.
+
+
 module WineDB
   @conn
 
@@ -25,74 +29,80 @@ module WineDB
   def self.create_tables
     @conn.exec("
       CREATE TABLE wine_site (
-        year integer NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        maker VARCHAR(255) NOT NULL,
-        region VARCHAR(255) NOT NULL,
-        grape VARCHAR(255) NOT NULL,
-        link VARCHAR(255) NOT NULL,
-        price_club VARCHAR(255) NOT NULL,
-        price_regular VARCHAR(255) NOT NULL,
-        price_sale VARCHAR(255) NOT NULL,
-        site_sku VARCHAR(255) NOT NULL,
-        global_id VARCHAR(255) NOT NULL )"
+        year integer ,
+        name VARCHAR(255) ,
+        maker VARCHAR(255) ,
+        region VARCHAR(255) ,
+        grape VARCHAR(255) ,
+        link VARCHAR(255) ,
+        price_club VARCHAR(255) ,
+        price_regular VARCHAR(255) ,
+        price_sale VARCHAR(255) ,
+        site_sku VARCHAR(255) ,
+        global_id VARCHAR(255)  )"
     )
 
     @conn.exec("
       CREATE TABLE evino_site (
-        year integer NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        maker VARCHAR(255) NOT NULL,
-        region VARCHAR(255) NOT NULL,
-        grape VARCHAR(255) NOT NULL,
-        link VARCHAR(255) NOT NULL,
-        price_club VARCHAR(255) NOT NULL,
-        price_regular VARCHAR(255) NOT NULL,
-        price_sale VARCHAR(255) NOT NULL,
-        site_sku VARCHAR(255) NOT NULL,
-        global_id VARCHAR(255) NOT NULL )"
+        name VARCHAR(255)
+       )"
     )
 
     @conn.exec("
       CREATE TABLE same_wines (
-        global_id_wine VARCHAR(255) NOT NULL,
-        global_id_evino VARCHAR(255) NOT NULL )"
+        global_id_wine VARCHAR(255) ,
+        global_id_evino VARCHAR(255)  )"
     )
 
     @conn.exec("
       CREATE TABLE price_history_wine (
-        global_id VARCHAR(255) NOT NULL,
-        price_club FLOAT NOT NULL,
-        price_regular FLOAT NOT NULL,
-	      price_sale FLOAT NOT NULL,
-	      date DATE NOT NULL )"
+        global_id VARCHAR(255) ,
+        price_club FLOAT ,
+        price_regular FLOAT ,
+	      price_sale FLOAT ,
+	      date DATE  )"
     )
 
     @conn.exec("
       CREATE TABLE price_history_evino (
-        global_id VARCHAR(255) NOT NULL,
-        price_regular FLOAT NOT NULL,
-	      price_sale FLOAT NOT NULL,
-	      date DATE NOT NULL )"
+        global_id VARCHAR(255) ,
+        price_regular FLOAT ,
+	      price_sale FLOAT ,
+	      date DATE  )"
     )
   end
 
-  def insert_wine(site, wine_hash = {})
+  def self.insert_wine(site, wine_hash = {})
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: 'webwiner' )
     table_name = "wine_site" if site == "wine"
+    table_name = "evino_site" if site == "evino"
+    sql = "INSERT INTO #{table_name}
+    (
+      name
+    ) VALUES
+    (
+      $1
+    )"
+    puts sql
+    #conn.prepare("save", sql)
+    conn.prepare("save", sql)
+    conn.exec_prepared("save", wine_hash.values) # aqui é necessario passar um array
+    conn.close
+
+
     
-    @conn.exec(
-      INSERT INTO table_name(column1, column2, …)
-VALUES (value1, value2, …);
-    )
 
   end
-
-
 
 end
 
+
 WineDB.connect_db
+
 WineDB.disconnect_db
 
-
-
+hash = {
+  name: "Vinho Cabrini"
+}
+site = 'wine'
+WineDB.insert_wine(site, hash)
