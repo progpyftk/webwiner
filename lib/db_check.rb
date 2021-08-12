@@ -1,4 +1,3 @@
-
 require 'pg'
 # connect to the "master-db" called 'postgres'
 

@@ -20,13 +20,12 @@
 #            retry scraping ones with problem
 #
 
-
 require 'faraday'
 require 'nokogiri'
+require_relative 'db_connection'
 
 class WineWebsite
 
-    
     # a classe Wine ainda será criada, por isso os atributos de um vinho não estão aqui nessa classe
     # essa classe Wine que será criada, servirá para todos os sites de vendas, pois de todos queremos as mesma informações.
 
@@ -38,9 +37,10 @@ class WineWebsite
     WINE_DATA_FEATURE_VALUE = '//dd[@class="w-paragraph"]' # xpath to find the wine features value at its main page
     WINE_NAME_XPATH = '//h1[@class="PageHeader-title w-title--4  text-center "]' # xpath to find the wine's name at its main page
 
+
     def products_link
         products_link = []
-        page_number = 1 # change this value in order to test faster
+        page_number = 70 # change this value in order to test faster
         products = 1
         until products == 0 # || page_number == 10 # delete this comment in order to test it faster
             res = Faraday.get(URL_PAGE_PIECE + page_number.to_s + ".html") # request to the next page
@@ -58,12 +58,18 @@ class WineWebsite
         doc = Nokogiri::HTML res.body # parse the page html
         wine_data = {}
         index = 0
+
+        # getting the product store's sku using regex at wine link string
+        wine_data[:link] = link
+        wine_data[:site_sku] = link.scan(/(?=prod)(.*)(?=.html)/).flatten[0]
+        wine_data[:global_id] = link.scan(/(?=prod)(.*)(?=.html)/).flatten[0]
+        
         # getting the grape, maker, year and regiom
         while index < doc.xpath(WINE_DATA_FEATURE_NAME).length
             unless doc.xpath(WINE_DATA_FEATURE_VALUE)[index] == nil
                 wine_data[:grape] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Uva"
                 wine_data[:maker] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Vinícola"
-                wine_data[:year] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Safra"
+                wine_data[:year] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text.to_i if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Safra"
                 wine_data[:region] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "País - Região"
                 index += 1
             end
@@ -80,15 +86,52 @@ class WineWebsite
             wine_data[:regular_price] = nil
             wine_data[:sale_price] = nil
         end
+
+        # to do:  check if the year was found, if not, take it from the wine's name
+        wine_data[:year] = 1000 unless wine_data.has_key?(:year) # just a temporary work around
         wine_data
+
+    end
+
+    def get_all_products
+        wines = []
+        products_link.each do |link|
+            wine_hash = get_product_data(link)
+            wines << wine_hash
+        end
+        wines
     end
 
 end
 
-wine_scrap = WineWebsite.new()
-products_link = wine_scrap.products_link
-puts products_link.length
-puts products_link
+scraper = WineWebsite.new()
+p scraper.get_all_products
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=begin
 wine_data_list = products_link.map { |link| wine_scrap.get_product_data(link) }
 puts"------------------------------------------------"
 wine_data_list.each do |each|
@@ -102,3 +145,6 @@ wine_data_list.each do |each|
     puts "Sale price: -------#{each[:sale_price]}"
     puts"------------------------------------------------"
 end
+
+=end
+
