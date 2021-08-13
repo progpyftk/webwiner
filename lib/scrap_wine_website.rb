@@ -23,6 +23,7 @@
 require 'faraday'
 require 'nokogiri'
 require_relative 'db_connection'
+require 'pp'
 
 class WineWebsite
 
@@ -36,11 +37,12 @@ class WineWebsite
     WINE_DATA_FEATURE_NAME = '//dt[@class="w-caption"]'  # xpath to find the wine features name at its main page
     WINE_DATA_FEATURE_VALUE = '//dd[@class="w-paragraph"]' # xpath to find the wine features value at its main page
     WINE_NAME_XPATH = '//h1[@class="PageHeader-title w-title--4  text-center "]' # xpath to find the wine's name at its main page
+    START_PAGE_NUMBER = 60 # the to start scraping, in order to make test, increase it
 
 
     def products_link
         products_link = []
-        page_number = 70 # change this value in order to test faster
+        page_number = START_PAGE_NUMBER # change this value in order to test faster
         products = 1
         until products == 0 # || page_number == 10 # delete this comment in order to test it faster
             res = Faraday.get(URL_PAGE_PIECE + page_number.to_s + ".html") # request to the next page
@@ -57,7 +59,6 @@ class WineWebsite
         res = Faraday.get(link) # request to the next page
         doc = Nokogiri::HTML res.body # parse the page html
         wine_data = {}
-        index = 0
 
         # getting the product store's sku using regex at wine link string
         wine_data[:link] = link
@@ -65,6 +66,7 @@ class WineWebsite
         wine_data[:global_id] = link.scan(/(?=prod)(.*)(?=.html)/).flatten[0]
         
         # getting the grape, maker, year and regiom
+        index = 0
         while index < doc.xpath(WINE_DATA_FEATURE_NAME).length
             unless doc.xpath(WINE_DATA_FEATURE_VALUE)[index] == nil
                 wine_data[:grape] = doc.xpath(WINE_DATA_FEATURE_VALUE)[index].text if doc.xpath(WINE_DATA_FEATURE_NAME)[index].text == "Uva"
@@ -76,6 +78,11 @@ class WineWebsite
         end
         # getting the name
         wine_data[:name] = doc.xpath(WINE_NAME_XPATH).first.text if doc.xpath(WINE_NAME_XPATH).first != nil
+        p wine_data[:name]
+        p wine_data[:year]
+        
+        #wine_data[:year] = wine_data.scan(/\d{4}/) # many products dont have the year separated, instead they have it at their name
+        
         # getting club price, sale price and regular price
         if doc.xpath('//price-box')[0]
             wine_data[:club_price] = doc.xpath('//price-box').attr(':product').text.scan(/\d+\.\d+/)[0].to_f
@@ -104,8 +111,24 @@ class WineWebsite
 
 end
 
+
+# Database check and table creations
+WineDB.check_db
+
+# Get all the product at the website
 scraper = WineWebsite.new()
-p scraper.get_all_products
+site_products = scraper.get_all_products
+
+# Add these productsto the database
+site_products.each { |each_wine| WineDB.insert_wine('wine', each_wine) }
+
+# testing if we try to add the same global_id twice it raises an error if it is duplicated, in this case we must update the product
+
+
+
+
+#site_products.each { |each_wine| WineDB.insert_wine(each_wine) }
+
 
 
 
