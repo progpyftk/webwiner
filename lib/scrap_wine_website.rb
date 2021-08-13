@@ -12,12 +12,13 @@
 # -------------------------------www.wine.com.br--------------------------------------------#
 
 # TODO
-#    1. Fix timeout problem - use begin / rescue approach
-#          When the request takes more than 60 seconds, it raises an error.
-#          C:/Ruby27/lib/ruby/2.7.0/net/protocol.rb:217:in `rbuf_fill': Net::ReadTimeout with #<TCPSocket:(closdTimeout)
-#   
-#    2. Check how many were success scraped by page, then, before scraping all the products again, 
-#            retry scraping ones with problem
+#       
+#    Now working at: pricing history for single products.
+#       - check how many different global ids we have at 
+#
+#    1. Treat blundle products. Ex: Kit 4 Vinhos Altos del Condor 2019
+#          
+#    2. Implement methods at database, including filters
 #
 
 require 'faraday'
@@ -27,9 +28,6 @@ require 'pp'
 
 class WineWebsite
 
-    # a classe Wine ainda será criada, por isso os atributos de um vinho não estão aqui nessa classe
-    # essa classe Wine que será criada, servirá para todos os sites de vendas, pois de todos queremos as mesma informações.
-
     FIRST_PAGE = "https://www.wine.com.br/vinhos/cVINHOS-p1.html"
     URL_PAGE_PIECE = "https://www.wine.com.br/vinhos/cVINHOS-p" # used to concatenate the full url in order to iterate over the product pages 
     MAIN_PAGE = "https://www.wine.com.br"
@@ -37,8 +35,7 @@ class WineWebsite
     WINE_DATA_FEATURE_NAME = '//dt[@class="w-caption"]'  # xpath to find the wine features name at its main page
     WINE_DATA_FEATURE_VALUE = '//dd[@class="w-paragraph"]' # xpath to find the wine features value at its main page
     WINE_NAME_XPATH = '//h1[@class="PageHeader-title w-title--4  text-center "]' # xpath to find the wine's name at its main page
-    START_PAGE_NUMBER = 60 # the to start scraping, in order to make test, increase it
-
+    START_PAGE_NUMBER = 75 # the to start scraping, in order to make test, increase it
 
     def products_link
         products_link = []
@@ -81,8 +78,8 @@ class WineWebsite
         p wine_data[:name]
         p wine_data[:year]
         
-        #wine_data[:year] = wine_data.scan(/\d{4}/) # many products dont have the year separated, instead they have it at their name
-        
+        wine_data[:year] = wine_data.scan(/\d{4}/).to_i if wine_data[:year] = nil # many products dont have the year separated, instead they have it at their name
+        puts wine_data[:year]
         # getting club price, sale price and regular price
         if doc.xpath('//price-box')[0]
             wine_data[:club_price] = doc.xpath('//price-box').attr(':product').text.scan(/\d+\.\d+/)[0].to_f
@@ -94,8 +91,6 @@ class WineWebsite
             wine_data[:sale_price] = nil
         end
 
-        # to do:  check if the year was found, if not, take it from the wine's name
-        wine_data[:year] = 1000 unless wine_data.has_key?(:year) # just a temporary work around
         wine_data
 
     end
@@ -111,23 +106,21 @@ class WineWebsite
 
 end
 
-
-# Database check and table creations
+# check if database exists, if not, it creates the db and tables
 WineDB.check_db
 
-# Get all the product at the website
+# Get all the product at the website - including "kits"
 scraper = WineWebsite.new()
 site_products = scraper.get_all_products
 
-# Add these productsto the database
-site_products.each { |each_wine| WineDB.insert_wine('wine', each_wine) }
+# Add these productsto the database - it add the new products and update the old ones
+site_products.each do |each_wine|
+    WineDB.insert_wine('wine', each_wine)
+    WineDB.add_price_history('wine', each_wine)
+end
 
-# testing if we try to add the same global_id twice it raises an error if it is duplicated, in this case we must update the product
 
 
-
-
-#site_products.each { |each_wine| WineDB.insert_wine(each_wine) }
 
 
 
