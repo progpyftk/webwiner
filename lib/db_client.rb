@@ -1,0 +1,77 @@
+require 'pg'
+require 'date'
+module DBClient
+
+  def self.add(hashobj, table, database)
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: database )
+    values = []; index = 1; str_fields = ""; str_vars = ""
+    hashobj.each do |k,v|
+      str_fields.concat(k.to_s).concat(',')
+      str_vars.concat("$").concat(index.to_s).concat(',')
+      values << v
+      index += 1
+    end
+    str_fields.chop!; str_vars.chop!
+    sql = "INSERT INTO #{table} ( #{str_fields}) VALUES (#{str_vars})"
+    begin
+      conn.prepare("save", sql) # values must match the same order as sql statement
+      conn.exec_prepared("save", values) # this method requires an array as second argument
+      conn.close
+    rescue => e # if it alreay exists, we are going to update it
+      puts e.message
+    end
+  end
+
+  def self.exist?(field, value, table, database)
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: database )
+    sql = "SELECT #{field} FROM #{table} WHERE #{field} = $1"
+    values = [value]
+    conn.prepare("save", sql) 
+    result = conn.exec_prepared("save", values)
+    result.ntuples > 0 ? true : false
+  end
+
+  def self.update(hashobj, field ,table, database)
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: database )
+    values = []; index = 1; str_fields = ""; str_vars = ""
+    hashobj.each do |k,v|
+      if k.to_s != field
+        p k, field
+        str_fields.concat(k.to_s).concat(',')
+        str_vars.concat("$").concat(index.to_s).concat(',')
+        values << v
+        index += 1
+      end
+    end
+    str_fields.chop!; str_vars.chop!
+    str_cond_var = "$".concat((index).to_s)
+    sql = "UPDATE #{table} SET (#{str_fields}) =(#{str_vars}) WHERE #{field} = #{str_cond_var}"
+    p sql
+    conn.close
+  end
+
+  def self.add_price_history(site, wine_hash)
+    table_name = "price_history_wine" if site == "wine"
+    table_name = "price_history_evino" if site == "evino"
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: 'webwiner' )
+    values = [wine_hash[:global_id], wine_hash[:regular_price], wine_hash[:sale_price], wine_hash[:club_price], Date.today]
+    sql = "INSERT INTO #{table_name} (global_id, price_regular, price_sale, price_club, date) VALUES ( $1, $2, $3, $4, $5 )"
+    conn.prepare("save", sql)
+    conn.exec_prepared("save", values)
+    conn.close
+  end
+
+  def self.get_global_ids(table)
+    conn = PG.connect( host: 'localhost', password: 'admin', user:'postgres', dbname: 'webwiner' )
+    sql = "SELECT global_id FROM #{table}"
+    result = conn.exec(sql)
+    conn.close
+    global_ids = []
+    result.each do |global_id|
+      global_ids << global_id unless global_ids.include?(global_id)
+    end
+    p global_ids.map! {|each| each['global_id']}
+  end
+
+end
+
