@@ -1,8 +1,9 @@
+# frozen_string_literal: true
 
 require 'rubygems'
 require 'rspec'
 
-require File.expand_path('../../lib/webwiner', __FILE__)
+require File.expand_path('../lib/webwiner', __dir__)
 
 RSpec.configure do |config|
   # == Mock Framework
@@ -14,4 +15,3 @@ RSpec.configure do |config|
   # config.mock_framework = :flexmock
   # config.mock_framework = :rr
 end
-

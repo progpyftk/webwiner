@@ -1,0 +1,24 @@
+@ Start - deleted the database - starting from scratch
+
+1. Scrap all the website wines - www.wine.com.br - ok
+
+2. Add these products to the postgres database, with all fields treated
+
+3. Add the products to the sql table price history, in order to follow their changes
+
+4. Make another complete scrap in order to add new products and update the existing ones
+
+5. Get all the global_id in the database
+
+
+# TO DO
+
+# create a model to read the global_id and its prices over the time ( what to use? arrays? hash?)
+
+# create a new class, named wine, in which will be able to print wine graph, it will be mixed in with database module, then it can read from the db
+
+#
+
+#
+
+# add the field "available" to the wine objects. In order to update and check if the store has it on stock

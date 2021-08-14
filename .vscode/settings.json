@@ -1,0 +1,20 @@
+{
+
+  "ruby.lint": {
+    "rubocop": {
+        "lint": true,
+        "rails": true,
+        "path": "C:/Ruby27/bin",
+        "exe": "C:/Ruby27/bin"
+    }
+  },
+  "ruby.format": "rubocop",
+  "editor.formatOnSaveTimeout": 5000,
+  "ruby.rubocop.executePath": "C:\\Ruby27\\\\bin\\"
+
+
+
+
+
+}
+
