@@ -3,8 +3,6 @@
 require 'pg'
 require 'date'
 module DBClient
-
-
   def self.add(hashobj, table, db)
     conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: db)
     str_fields, str_vars, values = prep_to_sql(hashobj, table)
@@ -29,17 +27,24 @@ module DBClient
 
   def self.update(hashobj, field, table, db)
     conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: db)
-    str_cond_var = ""
+    str_cond_var = ''
     str_fields, str_vars, values = prep_to_sql(hashobj, table)
     index = values.length + 1
-    str_cond_var = '$'+ index.to_s
-    sql = "UPDATE #{table} SET (#{str_fields}) =(#{str_vars}) WHERE #{field} = #{str_cond_var}"
+    str_cond_var = '$' + index.to_s
+    # we must remove the 'field' from str_fields , remove one str_vars and the value
+    str_fields = str_fields.sub(field + ',', '')
+    str_vars = str_vars[0...-4]
+    p values
+    puts values.length
+    sql = "UPDATE #{table} SET (#{str_fields}) = (#{str_vars}) WHERE #{field} = #{str_cond_var}"
+    p sql
+
     conn.prepare('save', sql)
     conn.exec_prepared('save', values)
     conn.close
   end
 
-  def self.prep_to_sql(hashobj, table)
+  def self.prep_to_sql(hashobj, _table)
     values = []
     index = 1
     str_fields = String.new
@@ -52,7 +57,7 @@ module DBClient
     end
     str_fields.chop!
     str_vars.chop!
-    return str_fields, str_vars, values
+    [str_fields, str_vars, values]
   end
 
   def self.add_price_history(site, wine_hash)
@@ -61,7 +66,7 @@ module DBClient
     conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: 'webwiner')
     values = [wine_hash[:global_id], wine_hash[:regular_price], wine_hash[:sale_price], wine_hash[:club_price],
               Date.today]
-    sql = "INSERT INTO #{table_name} (global_id, price_regular, price_sale, price_club, date) 
+    sql = "INSERT INTO #{table_name} (global_id, price_regular, price_sale, price_club, date)
     VALUES ( $1, $2, $3, $4, $5 )"
     conn.prepare('save', sql)
     conn.exec_prepared('save', values)

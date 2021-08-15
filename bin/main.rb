@@ -4,32 +4,23 @@ require_relative '../lib/db_client'
 require_relative '../lib/db_connection'
 require_relative '../lib/db_table'
 require_relative '../lib/wine'
-require_relative '../lib/scrap_wine_website'
+require_relative '../lib/winestore_website'
+require_relative '../lib/winestore_wine_page'
 
 DATABASE = 'webwiner'
 DBase.check(DATABASE) # 1. Checa se a basa de dados existe, caso nao, cria a base de dados
 DBTable.create(DATABASE) # 2. Criar as tabelas caso nao existam
-links_wine = ScrapWineSite.products_link # 3. Pega os links de todos os vinhos do site
-links_wine.each do |link|
-  wine = Wine.new
-  wine = ScrapWineSite.product_data(link) # 4. Pega as informacoes de cada um dos vinhos na sua respecitiva pagina
-  if DBClient.exist?('global_id', wine.global_id, 'wine_site', DATABASE) # 5. Checa se o vinho ja existe na DB
-    DBClient.update(wine.to_hash, 'global_id', 'wine_site', DATABASE) # 6. Atualiza se ja existir
+
+wine_store_website = WineStoreWebSite.new
+
+all_products_links = wine_store_website.products_link # 3. Raspa todos os links de todos os vinhos do site
+
+all_products_links.each do |link|
+  wine_page = WineStoreWinePage.new(link)
+  wine = wine_page.product_data # 3. Em cada link pega os dados do produto
+  if DBClient.exist?('global_id', wine.global_id, 'wine_site', DATABASE) # 4. Checa se o vinho ja existe na DB
+    DBClient.update(wine.to_hash, 'global_id', 'wine_site', DATABASE) # 5. Atualiza se ja existir
   else
-    DBClient.add(wine.to_hash, 'wine_site', DATABASE) # 7. Inclui caso nao exista
+    DBClient.add(wine.to_hash, 'wine_site', DATABASE) # 6. Inclui caso nao exista
   end
 end
-
-# wine.site_sku ="prod5444"
-# wine.store = "Wine"
-# wine.name = "Vinho do Lorenzo"
-# wine.year = 1999
-# wine.maker = "Lorenzo"
-# wine.region = "Colatina"
-# wine.global_id = "prod5444"
-# wine.grape = "Roxa"
-# wine.link = "www.teste.com.br"
-# wine.price_club = 54.21
-# wine.price_regular =  50.20
-# wine.price_sale = 21.40
-# winehash = wine.to_hash
