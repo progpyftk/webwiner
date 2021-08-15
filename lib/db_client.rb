@@ -3,20 +3,11 @@
 require 'pg'
 require 'date'
 module DBClient
-  def self.add(hashobj, table, database)
-    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: database)
-    values = []
-    index = 1
-    str_fields = ''
-    str_vars = ''
-    hashobj.each do |k, v|
-      str_fields.concat(k.to_s).concat(',')
-      str_vars.concat('$').concat(index.to_s).concat(',')
-      values << v
-      index += 1
-    end
-    str_fields.chop!
-    str_vars.chop!
+
+
+  def self.add(hashobj, table, db)
+    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: db)
+    str_fields, str_vars, values = prep_to_sql(hashobj, table)
     sql = "INSERT INTO #{table} ( #{str_fields}) VALUES (#{str_vars})"
     begin
       conn.prepare('save', sql) # values must match the same order as sql statement
@@ -27,8 +18,8 @@ module DBClient
     end
   end
 
-  def self.exist?(field, value, table, database)
-    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: database)
+  def self.exist?(field, value, table, db)
+    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: db)
     sql = "SELECT #{field} FROM #{table} WHERE #{field} = $1"
     values = [value]
     conn.prepare('save', sql)
@@ -36,16 +27,24 @@ module DBClient
     result.ntuples.positive?
   end
 
-  def self.update(hashobj, field, table, database)
-    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: database)
+  def self.update(hashobj, field, table, db)
+    conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: db)
+    str_cond_var = ""
+    str_fields, str_vars, values = prep_to_sql(hashobj, table)
+    index = values.length + 1
+    str_cond_var = '$'+ index.to_s
+    sql = "UPDATE #{table} SET (#{str_fields}) =(#{str_vars}) WHERE #{field} = #{str_cond_var}"
+    conn.prepare('save', sql)
+    conn.exec_prepared('save', values)
+    conn.close
+  end
+
+  def self.prep_to_sql(hashobj, table)
     values = []
     index = 1
-    str_fields = ''
-    str_vars = ''
+    str_fields = String.new
+    str_vars = String.new
     hashobj.each do |k, v|
-      next unless k.to_s != field
-
-      p k, field
       str_fields.concat(k.to_s).concat(',')
       str_vars.concat('$').concat(index.to_s).concat(',')
       values << v
@@ -53,10 +52,7 @@ module DBClient
     end
     str_fields.chop!
     str_vars.chop!
-    str_cond_var = '$'.concat(index.to_s)
-    sql = "UPDATE #{table} SET (#{str_fields}) =(#{str_vars}) WHERE #{field} = #{str_cond_var}"
-    p sql
-    conn.close
+    return str_fields, str_vars, values
   end
 
   def self.add_price_history(site, wine_hash)
@@ -65,7 +61,8 @@ module DBClient
     conn = PG.connect(host: 'localhost', password: 'admin', user: 'postgres', dbname: 'webwiner')
     values = [wine_hash[:global_id], wine_hash[:regular_price], wine_hash[:sale_price], wine_hash[:club_price],
               Date.today]
-    sql = "INSERT INTO #{table_name} (global_id, price_regular, price_sale, price_club, date) VALUES ( $1, $2, $3, $4, $5 )"
+    sql = "INSERT INTO #{table_name} (global_id, price_regular, price_sale, price_club, date) 
+    VALUES ( $1, $2, $3, $4, $5 )"
     conn.prepare('save', sql)
     conn.exec_prepared('save', values)
     conn.close

@@ -17,6 +17,10 @@ class ScrapWineSite
   WINE_NAME_XPATH = '//h1[@class="PageHeader-title w-title--4  text-center "]' # xpath to find the wine's name at its main page
   START_PAGE_NUMBER = 70 # the to start scraping, in order to make test, increase it
 
+  def initialize()
+  end
+  
+
   # return an array with all products links
   def self.products_link
     products_link = []
@@ -64,7 +68,8 @@ class ScrapWineSite
     end
     # getting the name
     @wine.name = doc.xpath(WINE_NAME_XPATH).first.text unless doc.xpath(WINE_NAME_XPATH).first.nil?
-    @wine.year = @wine.name.scan(/\d{4}/).to_i if @wine.year = nil
+    year = @wine.name.scan(/\d{4}/)
+    @wine.year = year if @wine.year == nil && year != nil
 
     # getting club price, sale price and regular price
     if doc.xpath('//price-box')[0]

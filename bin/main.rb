@@ -7,16 +7,16 @@ require_relative '../lib/wine'
 require_relative '../lib/scrap_wine_website'
 
 DATABASE = 'webwiner'
-DBase.check(DATABASE) # 1. Checa se a basa de dados existe, caso não, cria a base de dados
-DBTable.create(DATABASE) # 2. Criar as tabelas caso não existam
+DBase.check(DATABASE) # 1. Checa se a basa de dados existe, caso nao, cria a base de dados
+DBTable.create(DATABASE) # 2. Criar as tabelas caso nao existam
 links_wine = ScrapWineSite.products_link # 3. Pega os links de todos os vinhos do site
 links_wine.each do |link|
   wine = Wine.new
-  wine = ScrapWineSite.product_data(link) # 4. Pega as informações de cada um dos vinhos na sua respecitiva pagina
-  if DBClient.exist?('global_id', wine.global_id, 'wine_site', DATABASE) # 5. Checa se o vinho já existe na DB
-    DBClient.update(wine.to_hash, 'global_id', 'wine_site', DATABASE) # 5. Atualiza se já existir
+  wine = ScrapWineSite.product_data(link) # 4. Pega as informacoes de cada um dos vinhos na sua respecitiva pagina
+  if DBClient.exist?('global_id', wine.global_id, 'wine_site', DATABASE) # 5. Checa se o vinho ja existe na DB
+    DBClient.update(wine.to_hash, 'global_id', 'wine_site', DATABASE) # 6. Atualiza se ja existir
   else
-    DBClient.add(wine.to_hash, 'wine_site', DATABASE) # 6. Inclui caso não exista
+    DBClient.add(wine.to_hash, 'wine_site', DATABASE) # 7. Inclui caso nao exista
   end
 end
 
