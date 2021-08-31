@@ -12,12 +12,12 @@ module Winewebsite
 
         def call
             page_links = page_doc.xpath('//*[@class="row ProductDisplay-name"]//a//@href').map(&:text)
+            page_links.map! { |each_link| "https://www.wine.com.br" + each_link }
             page_links
         end
 
-        private
-        def link_formatter
-        end
+        
+      
     end
 
 end

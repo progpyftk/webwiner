@@ -4,7 +4,7 @@ require_relative 'page_products_links_catcher'
 require_relative '../url/parser'
 
 module Winewebsite
-   class ProductsLinkManager < ApplicationService
+   class AllProductsLinkScrapper < ApplicationService
 
     attr_reader :products_links
 

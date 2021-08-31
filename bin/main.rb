@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 require 'faraday'
 require 'nokogiri'
-require_relative '../lib/services/winewebsite/products_link_manager'
+require_relative '../lib/services/winewebsite/all_products_link_scrapper'
+require_relative '../lib/services/winewebsite/product_page_scrapper'
 
-start_page = 65
-puts Winewebsite::ProductsLinkManager.call(start_page)
+
+# www.wine.com.br
+start_page = 60
+Winewebsite::AllProductsLinkScrapper.call(start_page)
+
 
 
 
