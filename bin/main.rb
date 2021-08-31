@@ -1,26 +1,42 @@
 # frozen_string_literal: true
+require 'faraday'
+require 'nokogiri'
+require_relative '../lib/services/winewebsite/products_link_manager'
 
-require_relative '../lib/db_client'
-require_relative '../lib/db_connection'
-require_relative '../lib/db_table'
-require_relative '../lib/wine'
-require_relative '../lib/winestore_website'
-require_relative '../lib/winestore_wine_page'
+res = Faraday.get('https://www.wine.com.br/vinhos/cVINHOS-p1.html') # request to the next page
+doc = Nokogiri::HTML res.body # parse the page html
 
-DATABASE = 'webwiner'
-DBase.check(DATABASE) # 1. Checa se a basa de dados existe, caso nao, cria a base de dados
-DBTable.create(DATABASE) # 2. Criar as tabelas caso nao existam
 
-wine_store_website = WineStoreWebSite.new
 
-all_products_links = wine_store_website.products_link # 3. Raspa todos os links de todos os vinhos do site
+puts Winewebsite::ProductsPageCounter.call(doc)
+puts Winewebsite::PageProductsLinksCatcher.call(doc)
+start_page = 60
+puts Winewebsite::ProductsLinkManager.call(start_page)
 
-all_products_links.each do |link|
-  wine_page = WineStoreWinePage.new(link)
-  wine = wine_page.product_data # 3. Em cada link pega os dados do produto
-  if DBClient.exist?('global_id', wine.global_id, 'wine_site', DATABASE) # 4. Checa se o vinho ja existe na DB
-    DBClient.update(wine.to_hash, 'global_id', 'wine_site', DATABASE) # 5. Atualiza se ja existir
-  else
-    DBClient.add(wine.to_hash, 'wine_site', DATABASE) # 6. Inclui caso nao exista
-  end
-end
+
+
+
+
+
+
+
+
+
+
+=begin
+wine = Wine.new
+wine.name = 'CAFE FERRADO DEMAIS'
+wine.region = 'São Jacinto'
+wine.year = 999_999
+wine.global_id = 'TOMEII'
+wine.maker = 'CABRINI WINES'
+wine.price_club = 10.50
+wine = wine.to_hash
+table = 'wine_site'
+
+field = 'global_id'
+field_value = 'GID_TESTE'
+
+WineDB.insert(wine) unless WineDB.exist?(wine)
+WineDB.update(wine)
+=end

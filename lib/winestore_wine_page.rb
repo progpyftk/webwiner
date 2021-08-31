@@ -1,5 +1,16 @@
+# frozen_string_literal: true
+
 require_relative 'wine'
 require_relative 'winestore_website'
+
+# Quais as responsabilidade dessa classe?
+# 1. Conectar a uma url do site
+# 2. Fazer o parse da url do site desejado (DOC)
+# 3. Em cada um destes links pegar as seguintes informações - - especifico para o site da wine
+# 4. sku
+# 5. global_id
+# 6. wine_grape_region_year_maker
+# 7. preços
 
 class WineStoreWinePage
   WINE_DATA_FEATURE_NAME = '//dt[@class="w-caption"]' # xpath to find the wine features name at its main page

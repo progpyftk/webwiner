@@ -3,7 +3,10 @@
 require 'faraday'
 require 'nokogiri'
 require 'pp'
-
+# Quais as responsabilidade dessa classe?
+# 2. Fazer o parse da url do site desejado (DOC)
+# 3. Pegar o link da página de cada vinho e adicionar em array - especifico para o site da wine
+# 4. Retornar o array com todos os links - especifico para o site da wine
 class WineStoreWebSite
   FIRST_PAGE = 'https://www.wine.com.br/vinhos/cVINHOS-p1.html'
   URL_PAGE_PIECE = 'https://www.wine.com.br/vinhos/cVINHOS-p' # used to concatenate the full url in order to iterate over the product pages
