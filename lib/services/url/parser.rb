@@ -13,9 +13,7 @@ module URL
     end
 
     def call
-      doc = Nokogiri::HTML response.body
-      doc
+      Nokogiri::HTML response.body
     end
-    
   end
 end

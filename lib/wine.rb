@@ -4,8 +4,8 @@
 class Wine
   attr_accessor :name, :maker, :year, :grape, :region, :link, :price_club, :price_regular,
                 :price_sale, :store_sku, :store, :global_id
-  def initialize
-  end
+
+  def initialize; end
 
   def to_hash
     result = instance_variables.map do |attrib|

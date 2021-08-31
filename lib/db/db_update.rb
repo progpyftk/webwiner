@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'db_connection'
-require_relative 'wine'
 
 class DBUpdate
   def self.row(conn_params, sql_params, field, field_value, table)

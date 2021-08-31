@@ -13,12 +13,8 @@ module URL
     end
 
     def call
-      puts 'estou no connector'
-      puts url
-      response = Faraday.get(url)
-      puts 'esse eh o response'
-      puts response
-      response
+      puts "argumento passado para o Faraday no Connector: #{@url}"
+      Faraday.get(url)
       # TODO: tratar os retornos de resp
     end
   end

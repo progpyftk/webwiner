@@ -21,7 +21,7 @@ class WineDB
     DBUpdate.row(@conn_params, wine, @field, wine[:global_id], @table)
   end
 
-  def self.exist?
+  def self.exist?(wine)
     DB::Exist.row(@conn_params, @field, wine[:global_id], @table)
   end
 end
