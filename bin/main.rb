@@ -1,10 +1,6 @@
 # frozen_string_literal: true
-require 'pp'
-require 'faraday'
-require 'nokogiri'
 require_relative '../lib/services/winewebsite/all_products_link_scrapper'
 require_relative '../lib/services/winewebsite/product_page_scrapper'
-require_relative '../lib/db/db_insert'
 require_relative '../lib/db/db_wine'
 
 # www.wine.com.br
@@ -15,3 +11,7 @@ products_links_list.each do |link|
   wine = Winewebsite::ProductPageScrapper.call(page_doc, link).to_hash
   WineDB.exist?(wine) ? WineDB.update(wine) : WineDB.insert(wine)
 end
+
+# www.evino.com.br
+
+
