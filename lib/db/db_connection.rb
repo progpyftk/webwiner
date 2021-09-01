@@ -19,9 +19,9 @@ module DB
       @conn.prepare('save', sql)
       result = @conn.exec_prepared('save', values)
       @conn.close
-      p result
+      result
     rescue StandardError => e
-      p e.message
+      e.message
     end
 
     private

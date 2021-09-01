@@ -6,7 +6,9 @@ class DBUpdate
   def self.row(conn_params, sql_params, field, field_value, table)
     string_sql(sql_params, field, field_value, table)
     conn = DB::Client.new(conn_params)
-    conn.execute_params(@sql, @values)
+    puts @sql
+    result = conn.execute_params(@sql, @values)
+    p result
   end
 
   def self.string_sql(sql_params, field, _field_value, table)
@@ -30,7 +32,7 @@ class DBUpdate
     str_vars.chop!
     str_cond_var = "$#{index - 1}"
     str_fields = str_fields.sub("#{field},", '')
-    str_vars = str_vars[0..-4]
+    str_vars = str_vars[0..-5]
     @sql = "UPDATE #{table} SET (#{str_fields}) = (#{str_vars}) WHERE #{field} = #{str_cond_var}"
   end
 end

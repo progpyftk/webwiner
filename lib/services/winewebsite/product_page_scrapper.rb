@@ -63,7 +63,9 @@ module Winewebsite
     end
 
     def treat_year
-      year = @wine.name.scan(/\d{4}/)
+      # ainda tem que trabalhar aqui
+      year = @wine.name.scan(/\d{4}/) if @wine.name.is_a?(String)
+
       @wine.year = nil if year[0].nil?
     end
 

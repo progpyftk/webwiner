@@ -5,7 +5,6 @@ require_relative '../application_service'
 module Winewebsite
   class ProductsPageCounter < ApplicationService
     def initialize(page_doc)
-      puts 'estou aqui'
       @page_doc = page_doc
     end
 

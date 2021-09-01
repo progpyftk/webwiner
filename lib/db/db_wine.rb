@@ -18,6 +18,7 @@ class WineDB
   end
 
   def self.update(wine)
+    puts "Updating"
     DBUpdate.row(@conn_params, wine, @field, wine[:global_id], @table)
   end
 
