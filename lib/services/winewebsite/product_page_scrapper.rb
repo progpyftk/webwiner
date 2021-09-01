@@ -40,6 +40,7 @@ module Winewebsite
       @wine.name = @page_doc.xpath(name_xpath).first.text unless @page_doc.xpath(name_xpath).first.nil?
     end
 
+    # passar para case/when
     def grape_region_year_maker
       index = 0
       feature_name = '//dt[@class="w-caption"]'
@@ -64,9 +65,10 @@ module Winewebsite
 
     def treat_year
       # ainda tem que trabalhar aqui
-      year = @wine.name.scan(/\d{4}/) if @wine.name.is_a?(String)
-
-      @wine.year = nil if year[0].nil?
+      if @wine.name.is_a?(String)
+        year = @wine.name.scan(/\d{4}/)        
+        @wine.year = nil if year[0].nil?
+      end
     end
 
     def wine_prices
