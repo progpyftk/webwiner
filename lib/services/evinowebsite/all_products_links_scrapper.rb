@@ -47,4 +47,3 @@ module EvinoWebsite
 
 end
 
-EvinoWebsite::AllProductsLinksScrapper.call('https://www.evino.com.br/vinhos')
