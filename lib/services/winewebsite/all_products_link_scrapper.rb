@@ -5,7 +5,9 @@ require_relative 'products_page_counter'
 require_relative 'page_products_links_catcher'
 require_relative '../url/parser'
 
+# namespacing WineWebsite specific for Wine store wibsite
 module Winewebsite
+  # AllProductsLinkScrapper: responsible to run over all the wine store website pages getting the products links
   class AllProductsLinkScrapper < ApplicationService
     attr_reader :products_links
 

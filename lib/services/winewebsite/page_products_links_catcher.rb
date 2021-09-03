@@ -2,7 +2,10 @@
 
 require_relative '../application_service'
 
+# namespacing WineWebsite specific for Wine store wibsite
 module Winewebsite
+  # PageProductsLinksCatcher: responsible to catch the products links in a specific page
+
   class PageProductsLinksCatcher < ApplicationService
     attr_reader :page_doc
 

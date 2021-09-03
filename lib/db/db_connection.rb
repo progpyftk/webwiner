@@ -2,7 +2,7 @@
 
 module DB
   require 'pg'
-
+  # Client is responsible to connect and peform some operation at database
   class Client
     def initialize(params)
       @params = params

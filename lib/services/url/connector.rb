@@ -4,7 +4,9 @@ require_relative '../application_service'
 require 'faraday'
 require 'nokogiri'
 
+# namespacing service URL
 module URL
+  # Connector: url connection service object
   class Connector < ApplicationService
     attr_reader :url
 

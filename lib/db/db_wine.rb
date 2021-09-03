@@ -3,6 +3,7 @@
 require_relative 'db_insert'
 require_relative 'db_update'
 
+# WineDB: works as a webwiner database layer, as a db framework
 class WineDB
   @table = 'wine_site'
   @conn_params = {
@@ -18,7 +19,7 @@ class WineDB
   end
 
   def self.update(wine)
-    puts "Updating"
+    puts 'Updating'
     DBUpdate.row(@conn_params, wine, @field, wine[:global_id], @table)
   end
 

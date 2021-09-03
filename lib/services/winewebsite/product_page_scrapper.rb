@@ -3,7 +3,9 @@
 require_relative '../application_service'
 require 'C:\Users\loren\OneDrive\Área de Trabalho\projects\webwiner\lib\wine'
 
+# namespacing WineWebsite specific for Wine store wibsite
 module Winewebsite
+  # ProductPageScrapper: responsibloe to scrap the product specific page catching all its features
   class ProductPageScrapper < ApplicationService
     def initialize(page_doc, link)
       @wine = Wine.new
@@ -24,6 +26,7 @@ module Winewebsite
       global_id
       name
       grape_region_year_maker
+      new_grape_region_year_maker
       wine_prices
     end
 
@@ -40,33 +43,28 @@ module Winewebsite
       @wine.name = @page_doc.xpath(name_xpath).first.text unless @page_doc.xpath(name_xpath).first.nil?
     end
 
-    # passar para case/when
-    def grape_region_year_maker
-      index = 0
+    def new_grape_region_year_maker
       feature_name = '//dt[@class="w-caption"]'
       feature_value = '//dd[@class="w-paragraph"]'
-      while index < @page_doc.xpath(feature_name).length
-        next if @page_doc.xpath(feature_value)[index].nil?
-
-        @wine.grape = @page_doc.xpath(feature_value)[index].text if @page_doc.xpath(feature_name)[index].text == 'Uva'
-        if @page_doc.xpath(feature_name)[index].text == 'Vinícola'
+      @page_doc.xpath(feature_name).each_with_index do |_each, index|
+        case @page_doc.xpath(feature_name)[index].text
+        when 'Uva'
+          @wine.grape = @page_doc.xpath(feature_value)[index].text
+        when 'Vinícola'
           @wine.maker = @page_doc.xpath(feature_value)[index].text
-        end
-        if @page_doc.xpath(feature_name)[index].text == 'Safra'
+        when 'Safra'
           @wine.year = @page_doc.xpath(feature_value)[index].text.to_i
-        end
-        if @page_doc.xpath(feature_name)[index].text == 'País - Região'
+          treat_year if @wine.year.nil?
+        when 'País - Região'
           @wine.region = @page_doc.xpath(feature_value)[index].text
         end
-        index += 1
       end
-      treat_year if @wine.year.nil?
     end
 
     def treat_year
       # ainda tem que trabalhar aqui
       if @wine.name.is_a?(String)
-        year = @wine.name.scan(/\d{4}/)        
+        year = @wine.name.scan(/\d{4}/)
         @wine.year = nil if year[0].nil?
       end
     end

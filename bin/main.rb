@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative '../lib/services/winewebsite/all_products_link_scrapper'
 require_relative '../lib/services/winewebsite/product_page_scrapper'
 require_relative '../lib/db/db_wine'
@@ -13,5 +14,3 @@ products_links_list.each do |link|
 end
 
 # www.evino.com.br
-
-

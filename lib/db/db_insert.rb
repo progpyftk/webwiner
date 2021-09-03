@@ -2,6 +2,7 @@
 
 require 'pg'
 require_relative 'db_connection'
+# DBInsert - add rows to tables
 
 class DBInsert
   def self.row(connection_params, sql_params, table)

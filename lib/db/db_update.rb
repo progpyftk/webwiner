@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'db_connection'
-
+# DBUpdate: update rows at tables
 class DBUpdate
   def self.row(conn_params, sql_params, field, field_value, table)
     string_sql(sql_params, field, field_value, table)
