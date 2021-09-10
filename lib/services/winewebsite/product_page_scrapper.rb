@@ -8,6 +8,7 @@ module Winewebsite
   # ProductPageScrapper: responsibloe to scrap the product specific page catching all its features
   class ProductPageScrapper < ApplicationService
     def initialize(page_doc, link)
+      puts "Entrando na pagina do produto"
       @wine = Wine.new
       @wine.link = link
       @wine.store = 'Wine'
@@ -26,7 +27,6 @@ module Winewebsite
       global_id
       name
       grape_region_year_maker
-      new_grape_region_year_maker
       wine_prices
     end
 
@@ -43,7 +43,7 @@ module Winewebsite
       @wine.name = @page_doc.xpath(name_xpath).first.text unless @page_doc.xpath(name_xpath).first.nil?
     end
 
-    def new_grape_region_year_maker
+    def grape_region_year_maker
       feature_name = '//dt[@class="w-caption"]'
       feature_value = '//dd[@class="w-paragraph"]'
       @page_doc.xpath(feature_name).each_with_index do |_each, index|

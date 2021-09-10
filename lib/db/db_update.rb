@@ -6,9 +6,7 @@ class DBUpdate
   def self.row(conn_params, sql_params, field, field_value, table)
     string_sql(sql_params, field, field_value, table)
     conn = DB::Client.new(conn_params)
-    puts @sql
-    result = conn.execute_params(@sql, @values)
-    p result
+    conn.execute_params(@sql, @values)
   end
 
   def self.string_sql(sql_params, field, _field_value, table)
@@ -18,21 +16,21 @@ class DBUpdate
     last_value = ''
     @values = []
     sql_params.each do |k, v|
-      str_fields.concat(k.to_s).concat(',')
-      str_vars.concat('$').concat(index.to_s).concat(',')
       if k.to_s == field
         last_value = v
       else
+        str_fields.concat(k.to_s).concat(',')
+        str_vars.concat('$').concat(index.to_s).concat(',')
         @values << v
+        index += 1
       end
-      index += 1
     end
     @values << last_value
     str_fields.chop!
     str_vars.chop!
-    str_cond_var = "$#{index - 1}"
+    str_cond_var = "$#{index}"
     str_fields = str_fields.sub("#{field},", '')
-    str_vars = str_vars[0..-5]
+    str_vars = str_vars[0..-1]
     @sql = "UPDATE #{table} SET (#{str_fields}) = (#{str_vars}) WHERE #{field} = #{str_cond_var}"
   end
 end

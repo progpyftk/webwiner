@@ -8,7 +8,9 @@ class DBInsert
   def self.row(connection_params, sql_params, table)
     sql_string(sql_params, table)
     conn = DB::Client.new(connection_params)
-    conn.execute_params(@sql, @values)
+    puts @sql
+    result = conn.execute_params(@sql, @values)
+    p result
   end
 
   def self.sql_string(sql_params, table)

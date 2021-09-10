@@ -12,9 +12,9 @@ module DBTable
 
       conn.exec("
             CREATE TABLE IF NOT EXISTS evino_site
-            (year integer ,name VARCHAR(255), maker VARCHAR(255), region VARCHAR(255),
-            grape VARCHAR(255), link VARCHAR(255), price_club VARCHAR(255), price_regular VARCHAR(255),
-            price_sale VARCHAR(255), store_sku VARCHAR(255), global_id VARCHAR(255))")
+            (year integer, name VARCHAR(255), maker VARCHAR(255), region VARCHAR(255), grape VARCHAR(255),
+            link VARCHAR(255), price_club VARCHAR(255), price_regular VARCHAR(255), price_sale VARCHAR(255), store_sku VARCHAR(255),
+            store VARCHAR(255), global_id VARCHAR(255) PRIMARY KEY )")
 
       conn.exec("
             CREATE TABLE IF NOT EXISTS same_wines

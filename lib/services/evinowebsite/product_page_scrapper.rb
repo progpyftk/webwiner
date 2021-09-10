@@ -1,62 +1,104 @@
+# frozen_string_literal: true
+
 require_relative '../application_service'
 require 'selenium-webdriver'
-require_relative 'connect_url.rb'
-
+require_relative 'connect_url'
 require 'json'
-
 require 'C:\Users\loren\OneDrive\Área de Trabalho\projects\webwiner\lib\wine'
 
 module EvinoWebsite
-
-    class ProductPageScrapper < ApplicationService
-
-        def initialize(url)
-            @wine = Wine.new
-            @driver = ConnectURL.call(url)
-        end
-
-        def call
-            Selenium::WebDriver::Wait.new(:timeout => 10)
-            self.name
-            self.sale_price
-            #return @wine
-        end
-
-        private
-
-        def 
-
-        def name
-            @driver.find_element(:xpath, "//h2[@itemprop='name']").text
-        end
-
-        def sale_price
-            json_string =  @driver.find_element(:xpath, "/html/head/script[24]").attribute('innerHTML')
-            json_obj = JSON.parse(json_string)
-            puts json_obj['brand']
-            puts json_obj['name']
-            puts json_obj['sku']
-            puts json_obj['offers']['price']
-            puts json_obj['offers']['url']
-            json_obj['additionalProperty'].each do |each|
-
-                case each['name']
-                when "Uvas"
-                    puts each['value']
-                when "País"
-                    puts each['value']
-                when 'Região'
-                    puts each['value']
-                when "Safra"
-                    puts each['value']
-                end
-            end
-        end
-        
-        
+  class ProductPageScrapper < ApplicationService
+    def initialize(url)
+      @wine = Wine.new
+      @wine.store = "Evino"
+      @driver = ConnectURL.call(url)
     end
-  
 
+    def call
+      scrap_page
+      @driver.close
+      @wine
+    end
+
+    private
+
+    def scrap_page
+      # tratar o json recebido e ver se corresponde ao que eu quero, geralmente é o 25 ou 24
+      json_string = @driver.find_element(:xpath, '/html/head/script[24]').attribute('innerHTML')
+      script_number = 22
+      until json_string.include?("priceCurrency") || script_number == 27
+        json_string = @driver.find_element(:xpath, "/html/head/script[#{script_number}]").attribute('innerHTML')
+        script_number += 1
+      end
+    
+      if json_string.include?("priceCurrency")
+        @json_obj = JSON.parse(json_string)
+        name
+        maker
+        store_sku
+        price_sale
+        link
+        grape_region_year
+      else
+        puts "não conseguiu pegar o json"
+      end      
+    end
+
+    def name
+      @wine.name = @json_obj['name']
+    end
+
+    def maker
+      @wine.maker = @json_obj['brand']
+    end
+
+    def store_sku
+      @wine.store_sku = @json_obj['sku']
+      @wine.global_id = @wine.store_sku 
+    end
+
+    def price_sale
+      @wine.price_sale = @json_obj['offers']['price']
+    end
+
+    def link
+      @wine.link = @json_obj['offers']['url']
+    end
+
+    def grape_region_year
+      # falta concatenar região e país
+      puts @json_obj
+      @json_obj['additionalProperty'].each do |each|
+        puts each['name']
+        case each['name']
+        when 'Uvas'
+          @wine.grape = each['value']
+        when 'País'
+          country = each['value']
+          puts country
+        when 'Região'
+          region = each['value']
+          puts region
+        when 'Safra'
+          @wine.year = each['value']
+        end
+        treat_region(country, region)
+      end
+    end
+
+    def treat_region(country, region)
+      if country != nil && region != nil
+        @wine.region = country.to_s + "-#{region}"
+      elsif country != nil && region == nil
+        @wine.region = country.to_s
+      elsif country == nil && region != nil
+        @wine.region = region.to_s
+      end
+      puts @wine.region
+    end
+
+
+  end
 end
 
-EvinoWebsite::ProductPageScrapper.call('https://www.evino.com.br/product/chateau-tarin-2018-240121.html')
+
