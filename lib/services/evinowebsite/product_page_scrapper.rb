@@ -10,7 +10,7 @@ module EvinoWebsite
   class ProductPageScrapper < ApplicationService
     def initialize(url)
       @wine = Wine.new
-      @wine.store = "Evino"
+      @wine.store = 'Evino'
       @driver = ConnectURL.call(url)
     end
 
@@ -26,12 +26,12 @@ module EvinoWebsite
       # tratar o json recebido e ver se corresponde ao que eu quero, geralmente é o 25 ou 24
       json_string = @driver.find_element(:xpath, '/html/head/script[24]').attribute('innerHTML')
       script_number = 22
-      until json_string.include?("priceCurrency") || script_number == 27
+      until json_string.include?('priceCurrency') || script_number == 27
         json_string = @driver.find_element(:xpath, "/html/head/script[#{script_number}]").attribute('innerHTML')
         script_number += 1
       end
-    
-      if json_string.include?("priceCurrency")
+
+      if json_string.include?('priceCurrency')
         @json_obj = JSON.parse(json_string)
         name
         maker
@@ -40,8 +40,8 @@ module EvinoWebsite
         link
         grape_region_year
       else
-        puts "não conseguiu pegar o json"
-      end      
+        puts 'não conseguiu pegar o json'
+      end
     end
 
     def name
@@ -54,7 +54,7 @@ module EvinoWebsite
 
     def store_sku
       @wine.store_sku = @json_obj['sku']
-      @wine.global_id = @wine.store_sku 
+      @wine.global_id = @wine.store_sku
     end
 
     def price_sale
@@ -87,18 +87,14 @@ module EvinoWebsite
     end
 
     def treat_region(country, region)
-      if country != nil && region != nil
+      if !country.nil? && !region.nil?
         @wine.region = country.to_s + "-#{region}"
-      elsif country != nil && region == nil
+      elsif !country.nil? && region.nil?
         @wine.region = country.to_s
-      elsif country == nil && region != nil
+      elsif country.nil? && !region.nil?
         @wine.region = region.to_s
       end
       puts @wine.region
     end
-
-
   end
 end
-
-

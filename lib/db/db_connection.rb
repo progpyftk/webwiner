@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# databse module
 module DB
   require 'pg'
   # Client is responsible to connect and peform some operation at database

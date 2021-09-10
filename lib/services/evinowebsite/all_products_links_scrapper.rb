@@ -31,6 +31,7 @@ module EvinoWebsite
         button = @driver.find_element(:xpath, "//button[@class='sc-bdVaJa jkfVuL']")
         button_name = button.attribute('innerText')
         break if button_name != 'Mostrar mais produtos'
+
         Selenium::WebDriver::Wait.new(timeout: 20)
         @driver.find_element(:xpath, "//button[@class='sc-bdVaJa jkfVuL']").click
       end

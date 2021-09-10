@@ -3,7 +3,7 @@
 require_relative 'db_insert'
 require_relative 'db_update'
 
-# WineDB: works as a webwiner database layer, as a db framework
+# EvinoDB: works as a webwiner database layer, as a db framework for Evino store
 class EvinoDB
   @table = 'evino_site'
   @conn_params = {
