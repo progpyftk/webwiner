@@ -22,5 +22,4 @@ products_links_list = EvinoWebsite::AllProductsLinksScrapper.call(url)
 products_links_list.each do |link|
   wine = EvinoWebsite::ProductPageScrapper.call(link).to_hash
   EvinoDB.exist?(wine) ? EvinoDB.update(wine) : EvinoDB.insert(wine)
-  # continue from here ...
 end
