@@ -20,9 +20,7 @@ module EvinoWebsite
 
     def scrap_products_links
       @products_links = @page_doc.xpath("//div[@class='ProductTile__Content']//a//@href").map(&:text)
-      @products_links.map! { |link| 'https://www.evino.com.br'+link }
+      @products_links.map! { |link| "https://www.evino.com.br#{link}" }
     end
   end
 end
-
-

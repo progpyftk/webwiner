@@ -4,7 +4,6 @@ require_relative '../application_service'
 require 'C:\Users\loren\OneDrive\Área de Trabalho\projects\webwiner\lib\wine'
 require 'open-uri'
 
-
 # namespacing WineWebsite specific for Wine store wibsite
 module Winewebsite
   # ProductPageScrapper: responsibloe to scrap the product specific page catching all its features

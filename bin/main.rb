@@ -16,7 +16,6 @@ products_links_list.each do |link|
   WineDB.exist?(wine) ? WineDB.update(wine) : WineDB.insert(wine)
 end
 
-
 # www.evino.com.br
 url = 'https://www.evino.com.br/vinhos'
 products_links_list = EvinoWebsite::AllProductsLinksScrapper.call(url)

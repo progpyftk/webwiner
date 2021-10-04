@@ -1,8 +1,9 @@
+# frozen_string_literal: true
+
 require_relative '../application_service'
 require 'selenium-webdriver'
 # Evino module
 module URL
-
   # returns the Selenium driver for a received link
   class SeleniumConnector < ApplicationService
     def initialize(url)

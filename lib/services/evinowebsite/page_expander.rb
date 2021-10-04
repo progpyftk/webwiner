@@ -7,8 +7,7 @@ require 'nokogiri'
 require 'faraday'
 
 module EvinoWebsite
-
-  # expande a pagina da evino e retorna um doc da pagina expandida 
+  # expande a pagina da evino e retorna um doc da pagina expandida
   class PageExpander < ApplicationService
     attr_reader :number_of_clicks
 
@@ -42,18 +41,10 @@ module EvinoWebsite
         button = @driver.find_element(:xpath, "//button[@class='sc-bdVaJa jkfVuL']")
         button_name = button.attribute('innerText')
         break if button_name != 'Mostrar mais produtos'
+
         Selenium::WebDriver::Wait.new(timeout: 20)
         @driver.find_element(:xpath, "//button[@class='sc-bdVaJa jkfVuL']").click
       end
     end
-
   end
 end
-
-
-
-
-
-
-
-
