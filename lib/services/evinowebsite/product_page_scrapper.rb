@@ -2,16 +2,16 @@
 
 require_relative '../application_service'
 require 'selenium-webdriver'
-require_relative 'connect_url'
 require 'json'
 require 'C:\Users\loren\OneDrive\Área de Trabalho\projects\webwiner\lib\wine'
+require_relative '../url/selenium_connector'
 
 module EvinoWebsite
   class ProductPageScrapper < ApplicationService
     def initialize(url)
       @wine = Wine.new
       @wine.store = 'Evino'
-      @driver = ConnectURL.call(url)
+      @driver = URL.SeleniumConnector.call(url)
     end
 
     def call
