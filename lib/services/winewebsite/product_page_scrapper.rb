@@ -9,7 +9,6 @@ module Winewebsite
   # ProductPageScrapper: responsibloe to scrap the product specific page catching all its features
   class ProductPageScrapper < ApplicationService
     def initialize(page_doc, link)
-      puts 'Entrando na pagina do produto'
       @wine = Wine.new
       @wine.link = link
       @wine.store = 'Wine'
